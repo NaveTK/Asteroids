@@ -13,8 +13,7 @@ function Ship() {
     this.outlineColor[i][0] = 0;
     this.outlineColor[i][1] = 0;
   }
-  this.maxX = 3;
-  this.lastPos = new Array(20);
+  this.lastPos = new Array(10);
   for (var i = 0; i < this.lastPos.length; i++) {
     this.lastPos[i] = new Array(3);
     this.lastPos[i][0] = createVector(this.pos.x, this.pos.y);
@@ -53,7 +52,7 @@ function Ship() {
     this.lastPos[0][0] = createVector(this.pos.x - this.r * cos(this.heading), this.pos.y - this.r * sin(this.heading));
     this.lastPos[0][1] = this.heading;
     this.lastPos[i][2] = createVector(this.vel.x, this.vel.y)
-    this.tailHue += 10;
+    this.tailHue += this.vel.mag() * 1.5;
   }
 
   this.boost = function(a) {
@@ -79,25 +78,20 @@ function Ship() {
     return this.firingHue;
   }
   
-  this.lengthAt = function(x) {
-    return this.lastPos.length - abs(x);
-  }
 
   this.render = function() {
     //render tail
     noStroke();
-    for(var x = -this.maxX; x < this.maxX; x++) {
-      for(var i = 0; i < this.lengthAt(x)-1; i++) {
-        stroke((this.tailHue + ((this.lengthAt(x) - i) / this.lengthAt(x)) * 360) % 360, 100, (this.lengthAt(x) - i) / this.lengthAt(x) * 100);
-        fill((this.tailHue + ((this.lengthAt(x) - i) / this.lengthAt(x)) * 360) % 360, 100, (this.lengthAt(x) - i) / this.lengthAt(x) * 100);
+      for(var i = 0; i < this.lastPos.length-1; i++) {
+        stroke((this.tailHue + ((this.lastPos.length - i) / this.lastPos.length * 0.5) * 360) % 360, 100, (this.lastPos.length - i) / this.lastPos.length * 100);
+        fill((this.tailHue + ((this.lastPos.length - i) / this.lastPos.length * 0.5) * 360) % 360, 100, (this.lastPos.length - i) / this.lastPos.length * 100);
         //point(this.lastPos[i][0].x, this.lastPos[i][0].y);
         beginShape();
-        vertex(this.lastPos[i][0].x + sin(this.lastPos[i][1]) * x * ((this.lengthAt(x) - i / 1.25) / this.lengthAt(x)) * this.r / this.maxX, this.lastPos[i][0].y - cos(this.lastPos[i][1]) * x * ((this.lengthAt(x) - i / 1.25) / this.lengthAt(x)) * this.r / this.maxX);
-        vertex(this.lastPos[i][0].x - this.lastPos[i][2].x + sin(this.lastPos[i+1][1]) * x * ((this.lengthAt(x) - (i + 1) / 1.25) / this.lengthAt(x)) * this.r / this.maxX, this.lastPos[i][0].y - this.lastPos[i][2].y - cos(this.lastPos[i+1][1]) * x * ((this.lengthAt(x) - (i + 1) / 1.25) / this.lengthAt(x)) * this.r / this.maxX);
-        vertex(this.lastPos[i][0].x - this.lastPos[i][2].x + sin(this.lastPos[i+1][1]) * (x+1) * ((this.lengthAt(x+1) - (i + 1) / 1.25) / this.lengthAt(x+1)) * this.r / this.maxX, this.lastPos[i][0].y - this.lastPos[i][2].y - cos(this.lastPos[i+1][1]) * (x+1) * ((this.lengthAt(x+1) - (i + 1) / 1.25) / this.lengthAt(x+1)) * this.r / this.maxX);
-        vertex(this.lastPos[i][0].x + sin(this.lastPos[i][1]) * (x+1) * ((this.lengthAt(x+1) - i / 1.25) / this.lengthAt(x+1)) * this.r / this.maxX, this.lastPos[i][0].y - cos(this.lastPos[i][1]) * (x+1) * ((this.lengthAt(x+1) - i / 1.25) / this.lengthAt(x+1)) * this.r / this.maxX);
+        vertex(this.lastPos[i][0].x + sin(this.lastPos[i][1]) * -1 * ((this.lastPos.length - i / 1.25) / this.lastPos.length) * this.r, this.lastPos[i][0].y - cos(this.lastPos[i][1]) * -1 * ((this.lastPos.length - i / 1.25) / this.lastPos.length) * this.r);
+        vertex(this.lastPos[i][0].x - this.lastPos[i+1][2].x + sin(this.lastPos[i+1][1]) * -1 * ((this.lastPos.length - (i + 1) / 1.25) / this.lastPos.length) * this.r, this.lastPos[i][0].y - this.lastPos[i+1][2].y - cos(this.lastPos[i+1][1]) * -1 * ((this.lastPos.length - (i + 1) / 1.25) / this.lastPos.length) * this.r);
+        vertex(this.lastPos[i][0].x - this.lastPos[i+1][2].x + sin(this.lastPos[i+1][1]) * (+1) * ((this.lastPos.length - (i + 1) / 1.25) / this.lastPos.length) * this.r, this.lastPos[i][0].y - this.lastPos[i+1][2].y - cos(this.lastPos[i+1][1]) * (+1) * ((this.lastPos.length - (i + 1) / 1.25) / this.lastPos.length) * this.r);
+        vertex(this.lastPos[i][0].x + sin(this.lastPos[i][1]) * (+1) * ((this.lastPos.length - i / 1.25) / this.lastPos.length) * this.r, this.lastPos[i][0].y - cos(this.lastPos[i][1]) * (+1) * ((this.lastPos.length - i / 1.25) / this.lastPos.length) * this.r);
         endShape();
-      }
     }
     
     push();
