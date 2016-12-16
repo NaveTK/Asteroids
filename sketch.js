@@ -3,7 +3,17 @@ var asteroids = [];
 var lasers = [];
 var particles = [];
 var spaceHeld = false;
-var firingDelay;
+var firingDelay = 0;
+var laserSoundEffect = [3];
+
+function preload() {
+  laserSoundEffect[0] = loadSound('audio/pew_0.wav');
+  laserSoundEffect[1] = loadSound('audio/pew_1.wav');
+  laserSoundEffect[2] = loadSound('audio/pew_2.wav');
+  laserSoundEffect[0].setVolume(0.02);
+  laserSoundEffect[1].setVolume(0.025);
+  laserSoundEffect[2].setVolume(0.015);
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -19,9 +29,10 @@ function draw() {
 
   firingDelay--;
   if (spaceHeld && firingDelay <= 0) {
+    laserSoundEffect[floor(random(0, 3))].play();
     var h = ship.nextColor();
     lasers.push(new Laser(ship.pos, ship.heading, h));
-    firingDelay = 10;
+    firingDelay = 15;
     for (var i = 0; i < 3; i++) {
       particles.push(new Particle(createVector(ship.pos.x + cos(ship.heading) * ship.r, ship.pos.y + sin(ship.heading) * ship.r), ship.heading + random(-PI / 2, PI / 2), h));
     }
@@ -85,7 +96,6 @@ function keyReleased() {
 
 function mousePressed() {
   spaceHeld = true;
-  firingDelay = 0;
 }
 
 function mouseReleased() {
