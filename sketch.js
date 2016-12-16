@@ -1,6 +1,7 @@
 var ship;
 var asteroids = [];
 var lasers = [];
+var particles = [];
 var spaceHeld = false;
 var firingDelay;
 
@@ -15,16 +16,28 @@ function setup() {
 
 function draw() {
   background(0);
-  
+
   firingDelay--;
   if (spaceHeld && firingDelay <= 0) {
-    lasers.push(new Laser(ship.pos, ship.heading, ship.nextColor()));
+    var h = ship.nextColor();
+    lasers.push(new Laser(ship.pos, ship.heading, h));
     firingDelay = 10;
+    for (var i = 0; i < 3; i++) {
+      particles.push(new Particle(createVector(ship.pos.x + cos(ship.heading) * ship.r, ship.pos.y + sin(ship.heading) * ship.r), ship.heading + random(-PI / 2, PI / 2), h));
+    }
+  }
+
+  for (var i = particles.length - 1; i > 0; i--) {
+    particles[i].render();
+    particles[i].update();
+    if (particles[i].opacity <= 0) {
+      particles.splice(i, 1);
+    }
   }
 
   for (var i = 0; i < asteroids.length; i++) {
     if (ship.hits(asteroids[i])) {
-      console.log('ooops!');
+      //console.log('ooops!');
     }
     asteroids[i].render();
     asteroids[i].update();
@@ -39,7 +52,10 @@ function draw() {
     } else {
       for (var j = asteroids.length - 1; j >= 0; j--) {
         if (lasers[i].hits(asteroids[j])) {
-          if (asteroids[j].r > 10) {
+          for (var k = 0; k < 3; k++) {
+            particles.push(new Particle(lasers[i].pos, lasers[i].angle + PI + random(-PI / 2, PI / 2), lasers[i].h));
+          }
+          if (asteroids[j].r > 20) {
             var newAsteroids = asteroids[j].breakup();
             asteroids = asteroids.concat(newAsteroids);
           }
@@ -59,31 +75,32 @@ function draw() {
 }
 
 function keyReleased() {
-  if (keyCode == RIGHT_ARROW || keyCode == LEFT_ARROW) {
+  if (keyCode == RIGHT_ARROW || keyCode == LEFT_ARROW || key == 'D' || key == 'A') {
     ship.setRotation(0);
   }
-  if (keyCode == UP_ARROW || keyCode == DOWN_ARROW) {
+  if (keyCode == UP_ARROW || keyCode == DOWN_ARROW || key == 'W' || key == 'S') {
     ship.boosting(0);
-  }
-  if (key == ' ') {
-    spaceHeld = false;
   }
 }
 
+function mousePressed() {
+  spaceHeld = true;
+  firingDelay = 0;
+}
+
+function mouseReleased() {
+  spaceHeld = false;
+}
+
 function keyPressed() {
-  if (key == ' ') {
-    spaceHeld = true;
-    firingDelay = 0;
+  if (keyCode == RIGHT_ARROW || key == 'D') {
+    ship.setRotation(-0.5);
+  } else if (keyCode == LEFT_ARROW || key == 'A') {
+    ship.setRotation(0.5);
   }
-  if (keyCode == RIGHT_ARROW) {
-    ship.setRotation(0.1);
-  } else if (keyCode == LEFT_ARROW) {
-    ship.setRotation(-0.1);
-  }
-  if (keyCode == UP_ARROW) {
+  if (keyCode == UP_ARROW || key == 'W') {
     ship.boosting(1);
-  }
-  else if (keyCode == DOWN_ARROW) {
+  } else if (keyCode == DOWN_ARROW || key == 'S') {
     ship.boosting(-0.5);
   }
 }

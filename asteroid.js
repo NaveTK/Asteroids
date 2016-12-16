@@ -5,9 +5,9 @@ function Asteroid(pos, r) {
     this.pos = createVector(random(width), random(height))
   }
   if (r) {
-    this.r = r * 0.5;
+    this.r = r;
   } else {
-    this.r = random(15, 50);
+    this.r = random(80, 120);
   }
 
 
@@ -15,7 +15,7 @@ function Asteroid(pos, r) {
   this.total = floor(random(5, 15));
   this.offset = [];
   for (var i = 0; i < this.total; i++) {
-    this.offset[i] = random(-this.r * 0.5, this.r * 0.5);
+    this.offset[i] = random(-this.r * 0.25, this.r * 0.25);
   }
 
   this.update = function() {
@@ -42,8 +42,24 @@ function Asteroid(pos, r) {
 
   this.breakup = function() {
     var newA = [];
-    newA[0] = new Asteroid(this.pos, this.r);
-    newA[1] = new Asteroid(this.pos, this.r);
+    trys = 0;
+    while (newA.length < 10 && trys < 400) {
+      trys++;
+      var ast = new Asteroid(createVector(this.pos.x + random(-this.r, this.r), this.pos.y + random(-this.r, this.r)), map(trys, 0, 500, this.r * 0.5, 15));
+      var fits = true;
+      if (dist(ast.pos.x, ast.pos.y, this.pos.x, this.pos.y) + (ast.r - 5) > this.r) {
+        fits = false;
+      }
+      for (var i = 0; i < newA.length; i++) {
+        if (dist(ast.pos.x, ast.pos.y, newA[i].pos.x, newA[i].pos.y) < (ast.r - 5) + newA[i].r) {
+          fits = false;
+        }
+      }
+      if (fits === true) {
+        ast.vel = p5.Vector.sub(ast.pos, this.pos).normalize();
+        newA.push(ast);
+      }
+    }
     return newA;
   }
 
